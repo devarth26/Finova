@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .content {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .welcome-message {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .logout-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .logout-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Dashboard</h1>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+    </div>
+    
+    <div class="content">
+        <div id="welcomeMessage" class="welcome-message">Welcome to your dashboard!</div>
+        
+        <div>
+            <h2>Your Content</h2>
+            <p>This is a protected area. You need to be logged in to view this page.</p>
+            <p>You can customize this dashboard with your application's features.</p>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is authenticated
+        window.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch('/api/check-auth');
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    document.getElementById('welcomeMessage').textContent = `Welcome, ${data.username}! This is your dashboard.`;
+                } else {
+                    // Redirect to login if not authenticated
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Error checking authentication:', error);
+            }
+        });
+        
+        // Handle logout
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                const response = await fetch('/api/logout');
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        });
+    </script>
+</body>
+</html>

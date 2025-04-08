@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Based Personal Finance Management Platform</title>
+    <style>
+        :root {
+            --primary-color: #5E7F47;
+            --light-color: #A7C78F;
+            --bg-color: #EDF2EB;
+            --text-color: #333;
+            --highlight-color: #3D5A25;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--bg-color);
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .header-icons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Hamburger Menu Styles */
+        .hamburger-menu {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+
+        .nav-menu.active {
+            left: 0;
+        }
+
+        .nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .nav-overlay.active {
+            display: block;
+        }
+
+        .nav-menu-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-menu-close {
+            cursor: pointer;
+        }
+
+        .nav-menu-items {
+            list-style: none;
+        }
+
+        .nav-menu-item {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .nav-menu-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .nav-menu-item.active {
+            background-color: #f0f0f0;
+            font-weight: 500;
+        }
+        
+        .banner {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+        
+        .calculator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .slider-container {
+            margin-bottom: 2rem;
+        }
+        
+        .slider-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+        
+        .slider-value {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+        
+        .currency {
+            font-size: 1.8rem;
+            color: var(--text-color);
+        }
+        
+        .slider-wrapper {
+            position: relative;
+            height: 30px;
+            width: 100%;
+        }
+        
+        .slider-track {
+            position: absolute;
+            height: 6px;
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 3px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .slider-fill {
+            position: absolute;
+            height: 6px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .slider {
+            position: absolute;
+            width: 100%;
+            height: 6px;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 3;
+        }
+        
+        .slider-thumb {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .slider-min, .slider-max {
+            position: absolute;
+            font-size: 0.9rem;
+            color: #888;
+            top: 100%;
+            margin-top: 5px;
+        }
+        
+        .slider-min {
+            left: 0;
+        }
+        
+        .slider-max {
+            right: 0;
+        }
+        
+        .results-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+        }
+        
+        .donut-chart {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .chart-segment {
+            transition: all 0.3s ease;
+        }
+        
+        .chart-center {
+            position: absolute;
+            width: 70%;
+            height: 70%;
+            background-color: white;
+            border-radius: 50%;
+            top: 15%;
+            left: 15%;
+        }
+
+        /* Chart Index Styles */
+        .chart-index {
+            position: absolute;
+            bottom: -60px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .chart-index-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+        
+        .chart-index-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 5px;
+        }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .results-table tr {
+            border-bottom: 1px solid #eee;
+        }
+        
+        .results-table td {
+            padding: 1rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .results-table td:first-child {
+            color: var(--text-color);
+        }
+        
+        .results-table td:last-child {
+            text-align: right;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+        
+        @media (max-width: 768px) {
+            .input-section, .results-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title">AI BASED PERSONAL FINANCE MANAGEMENT PLATFORM</div>
+        <div class="header-icons">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <div class="hamburger-menu" id="hamburgerBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Hamburger Menu Navigation -->
+    <div class="nav-overlay" id="navOverlay"></div>
+    <nav class="nav-menu" id="navMenu">
+        <div class="nav-menu-header">
+            <div class="header-title">Menu</div>
+            <div class="nav-menu-close" id="closeMenuBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </div>
+        </div>
+        <ul class="nav-menu-items">
+            <li class="nav-menu-item">Dashboard</li>
+            <li class="nav-menu-item">AI Chatbot</li>
+            <li class="nav-menu-item active">Inflation Calculator</li>
+            <li class="nav-menu-item">Investments</li>
+            <li class="nav-menu-item">Budget Planner</li>
+            <li class="nav-menu-item">Expense Tracker</li>
+            <li class="nav-menu-item">Financial Goals</li>
+            <li class="nav-menu-item">Settings</li>
+        </ul>
+    </nav>
+    
+    <div class="banner">
+        Inflation Calculator
+    </div>
+    
+    <div class="calculator-container">
+        <div class="input-section">
+            <div class="slider-container">
+                <div class="slider-title">Current Rate</div>
+                <div class="slider-value">
+                    <span class="currency">₹</span> <span id="currentRateValue">145000.000</span>
+                </div>
+                <div class="slider-wrapper">
+                    <div class="slider-track"></div>
+                    <div class="slider-fill" id="currentRateFill" style="width: 20%;"></div>
+                    <input type="range" min="1000" max="1000000" value="145000" class="slider" id="currentRateSlider">
+                    <div class="slider-thumb" id="currentRateThumb" style="left: 20%;"></div>
+                    <div class="slider-min">1.000.000</div>
+                    <div class="slider-max">17.480.000</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <svg class="donut-chart" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="#D9E3F7" />
+                    <path id="inflationArc" class="chart-segment" d="M50,50 L50,5 A45,45 0 0,1 95,50 Z" fill="#5E7F47" />
+                </svg>
+                <div class="chart-center"></div>
+                
+                <!-- Chart Index -->
+                <div class="chart-index">
+                    <div class="chart-index-item">
+                        <div class="chart-index-color" style="background-color: #5E7F47;"></div>
+                        <span>Cost Increase</span>
+                    </div>
+                    <div class="chart-index-item">
+                        <div class="chart-index-color" style="background-color: #D9E3F7;"></div>
+                        <span>Current Cost</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slider-container">
+            <div class="slider-title">Rate Of Inflation</div>
+            <div class="slider-value"><span id="inflationRateValue">23</span> %</div>
+            <div class="slider-wrapper">
+                <div class="slider-track"></div>
+                <div class="slider-fill" id="inflationRateFill" style="width: 23%;"></div>
+                <input type="range" min="0" max="100" value="23" class="slider" id="inflationRateSlider">
+                <div class="slider-thumb" id="inflationRateThumb" style="left: 23%;"></div>
+                <div class="slider-min">0</div>
+                <div class="slider-max">100</div>
+            </div>
+        </div>
+        
+        <div class="slider-container">
+            <div class="slider-title">Time Period</div>
+            <div class="slider-value"><span id="timePeriodValue">5</span> Yr</div>
+            <div class="slider-wrapper">
+                <div class="slider-track"></div>
+                <div class="slider-fill" id="timePeriodFill" style="width: 16.67%;"></div>
+                <input type="range" min="1" max="30" value="5" class="slider" id="timePeriodSlider">
+                <div class="slider-thumb" id="timePeriodThumb" style="left: 16.67%;"></div>
+                <div class="slider-min">1</div>
+                <div class="slider-max">30 Yr</div>
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <div></div>
+            <table class="results-table">
+                <tr>
+                    <td>Current Cost</td>
+                    <td>₹ <span id="currentCostResult">145000.000</span></td>
+                </tr>
+                <tr>
+                    <td>Cost Increase</td>
+                    <td>₹ <span id="costIncreaseResult">263219.000</span></td>
+                </tr>
+                <tr>
+                    <td>Future Cost</td>
+                    <td>₹ <span id="futureCostResult">408219.000</span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Get all sliders and their respective display elements
+        const currentRateSlider = document.getElementById('currentRateSlider');
+        const currentRateValue = document.getElementById('currentRateValue');
+        const currentRateFill = document.getElementById('currentRateFill');
+        const currentRateThumb = document.getElementById('currentRateThumb');
+        
+        const inflationRateSlider = document.getElementById('inflationRateSlider');
+        const inflationRateValue = document.getElementById('inflationRateValue');
+        const inflationRateFill = document.getElementById('inflationRateFill');
+        const inflationRateThumb = document.getElementById('inflationRateThumb');
+        
+        const timePeriodSlider = document.getElementById('timePeriodSlider');
+        const timePeriodValue = document.getElementById('timePeriodValue');
+        const timePeriodFill = document.getElementById('timePeriodFill');
+        const timePeriodThumb = document.getElementById('timePeriodThumb');
+        
+        // Get result displays
+        const currentCostResult = document.getElementById('currentCostResult');
+        const costIncreaseResult = document.getElementById('costIncreaseResult');
+        const futureCostResult = document.getElementById('futureCostResult');
+        
+        // Get chart elements
+        const inflationArc = document.getElementById('inflationArc');
+        
+        // Format number with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Calculate future cost based on current rate, inflation rate, and time period
+        function calculateFutureCost() {
+            const currentRate = parseFloat(currentRateSlider.value);
+            const inflationRate = parseFloat(inflationRateSlider.value) / 100;
+            const timePeriod = parseFloat(timePeriodSlider.value);
+            
+            const futureCost = currentRate * Math.pow(1 + inflationRate, timePeriod);
+            const costIncrease = futureCost - currentRate;
+            
+            currentCostResult.textContent = formatNumber(currentRate.toFixed(3));
+            costIncreaseResult.textContent = formatNumber(costIncrease.toFixed(3));
+            futureCostResult.textContent = formatNumber(futureCost.toFixed(3));
+            
+            // Update chart
+            updateChart(costIncrease / futureCost);
+        }
+        
+        // Update chart with new percentage
+        function updateChart(percentage) {
+            const anglePercentage = percentage * 360;
+            const startAngle = 0;
+            const endAngle = anglePercentage;
+            
+            // Convert angle to radians
+            const startAngleRad = (startAngle - 90) * Math.PI / 180;
+            const endAngleRad = (endAngle - 90) * Math.PI / 180;
+            
+            // Calculate start and end points
+            const x1 = 50 + 45 * Math.cos(startAngleRad);
+            const y1 = 50 + 45 * Math.sin(startAngleRad);
+            const x2 = 50 + 45 * Math.cos(endAngleRad);
+            const y2 = 50 + 45 * Math.sin(endAngleRad);
+            
+            // Create path
+            const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+            const path = `M50,50 L${x1},${y1} A45,45 0 ${largeArcFlag},1 ${x2},${y2} Z`;
+            
+            inflationArc.setAttribute('d', path);
+        }
+        
+        // Event listeners for sliders
+        currentRateSlider.addEventListener('input', function() {
+            const max = parseFloat(this.max);
+            const min = parseFloat(this.min);
+            const val = parseFloat(this.value);
+            const percentage = ((val - min) / (max - min)) * 100;
+            
+            currentRateValue.textContent = formatNumber(val.toFixed(3));
+            currentRateFill.style.width = percentage + '%';
+            currentRateThumb.style.left = percentage + '%';
+            
+            calculateFutureCost();
+        });
+        
+        inflationRateSlider.addEventListener('input', function() {
+            const val = parseFloat(this.value);
+            const percentage = val;
+            
+            inflationRateValue.textContent = val;
+            inflationRateFill.style.width = percentage + '%';
+            inflationRateThumb.style.left = percentage + '%';
+            
+            calculateFutureCost();
+        });
+        
+        timePeriodSlider.addEventListener('input', function() {
+            const max = parseFloat(this.max);
+            const min = parseFloat(this.min);
+            const val = parseFloat(this.value);
+            const percentage = ((val - min) / (max - min)) * 100;
+            
+            timePeriodValue.textContent = val;
+            timePeriodFill.style.width = percentage + '%';
+            timePeriodThumb.style.left = percentage + '%';
+            
+            calculateFutureCost();
+        });
+        
+        // Hamburger menu functionality
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+        const navMenu = document.getElementById('navMenu');
+        const navOverlay = document.getElementById('navOverlay');
+        
+        hamburgerBtn.addEventListener('click', function() {
+            navMenu.classList.add('active');
+            navOverlay.classList.add('active');
+        });
+        
+        closeMenuBtn.addEventListener('click', function() {
+            navMenu.classList.remove('active');
+            navOverlay.classList.remove('active');
+        });
+        
+        navOverlay.addEventListener('click', function() {
+            navMenu.classList.remove('active');
+            navOverlay.classList.remove('active');
+        });
+        
+        // Initialize
+        calculateFutureCost();
+    </script>
+</body>
+</html>

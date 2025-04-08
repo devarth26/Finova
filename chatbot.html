@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIN-AI Chat Interface</title>
+    <style>
+        :root {
+            --primary-color: #4a7c3a;
+            --secondary-color: #e8f5e9;
+            --text-color: #333;
+            --light-text: #fff;
+            --border-radius: 20px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: linear-gradient(to right, #4a7c3a, #6ba353);
+            color: var(--light-text);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .header-controls button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .welcome-screen, .chat-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .welcome-screen {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            border-radius: var(--border-radius);
+        }
+        
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background-color: #3a5f2d;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .logo-icon svg {
+            width: 50px;
+            height: 50px;
+            fill: var(--light-text);
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-text {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+        
+        .input-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 30px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .send-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--primary-color);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .send-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: white;
+        }
+        
+        .chat-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            overflow-y: auto;
+            padding: 20px 0;
+            flex: 1;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--primary-color);
+            color: var(--light-text);
+        }
+        
+        .ai-message {
+            align-self: flex-start;
+            background-color: #e9e9e9;
+        }
+        
+        .chat-input {
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            padding: 15px 0;
+            background-color: #f5f5f5;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            padding: 12px 16px;
+            gap: 5px;
+            align-self: flex-start;
+            background-color: #e9e9e9;
+            border-radius: 18px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #888;
+            border-radius: 50%;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typingAnimation {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .chat-screen {
+            display: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">FIN-AI</div>
+        <div class="header-controls">
+            <button id="search-btn">🔍</button>
+            <button id="menu-btn">☰</button>
+        </div>
+    </header>
+    
+    <main>
+        <!-- Welcome Screen -->
+        <div class="welcome-screen" id="welcome-screen">
+            <h1>Introducing FIN-AI</h1>
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                    <circle cx="8.5" cy="10.5" r="2"/>
+                    <circle cx="15.5" cy="10.5" r="2"/>
+                    <path d="M12 16c-1.48 0-2.75-.81-3.45-2h6.9c-.7 1.19-1.97 2-3.45 2z"/>
+                </svg>
+            </div>
+            <p class="welcome-text">
+                Meet Fin-AI, your personal AI-powered assistant, ready to help with all your financial queries. 
+                Just ask, and let Fin-AI handle the rest!
+            </p>
+            <div class="input-container">
+                <input type="text" id="welcome-input" placeholder="Ask me anything">
+                <button class="send-btn" id="welcome-send">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Chat Screen -->
+        <div class="chat-screen" id="chat-screen">
+            <div class="chat-messages" id="chat-messages">
+                <div class="message ai-message">
+                    How can I assist you with your financial questions today?
+                </div>
+                <!-- Messages will be added here -->
+            </div>
+            
+            <div class="chat-input">
+                <div class="input-container">
+                    <input type="text" id="chat-input" placeholder="Type your message...">
+                    <button class="send-btn" id="chat-send">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const chatScreen = document.getElementById('chat-screen');
+            const welcomeInput = document.getElementById('welcome-input');
+            const welcomeSend = document.getElementById('welcome-send');
+            const chatInput = document.getElementById('chat-input');
+            const chatSend = document.getElementById('chat-send');
+            const chatMessages = document.getElementById('chat-messages');
+            
+            // Function to transition from welcome to chat screen
+            function transitionToChat(message) {
+                // Add user message to chat
+                addMessage(message, 'user');
+                
+                // Hide welcome screen and show chat screen
+                welcomeScreen.style.display = 'none';
+                chatScreen.style.display = 'flex';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Simulate AI response after a delay
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    
+                    // Add AI response based on user message
+                    const response = generateResponse(message);
+                    addMessage(response, 'ai');
+                }, 1500);
+                
+                // Focus on chat input
+                chatInput.focus();
+            }
+            
+            // Function to add a new message to the chat
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(sender === 'user' ? 'user-message' : 'ai-message');
+                messageDiv.textContent = text;
+                chatMessages.appendChild(messageDiv);
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Function to show typing indicator
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.classList.add('typing-indicator');
+                typingDiv.id = 'typing-indicator';
+                
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement('div');
+                    dot.classList.add('typing-dot');
+                    typingDiv.appendChild(dot);
+                }
+                
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Function to remove typing indicator
+            function removeTypingIndicator() {
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+            
+            // Simple response generator (can be enhanced)
+            function generateResponse(message) {
+                message = message.toLowerCase();
+                
+                if (message.includes('hello') || message.includes('hi')) {
+                    return "Hello! How can I help with your financial needs today?";
+                } else if (message.includes('budget') || message.includes('spending')) {
+                    return "I can help you track your spending and create a budget. Would you like me to analyze your recent transactions or help set up a new budget plan?";
+                } else if (message.includes('invest') || message.includes('stock')) {
+                    return "I can provide investment insights based on your financial goals and risk tolerance. What type of investments are you interested in?";
+                } else if (message.includes('save') || message.includes('saving')) {
+                    return "Saving is a great goal! I can suggest strategies to increase your savings based on your income and expenses. Would you like some savings tips?";
+                } else if (message.includes('thank')) {
+                    return "You're welcome! Feel free to ask if you have any other questions about your finances.";
+                } else {
+                    return "I'm here to help with all your financial questions. Could you provide more details about what you're looking for?";
+                }
+            }
+            
+            // Event listeners for the welcome screen
+            welcomeSend.addEventListener('click', function() {
+                const message = welcomeInput.value.trim();
+                if (message) {
+                    transitionToChat(message);
+                    welcomeInput.value = '';
+                }
+            });
+            
+            welcomeInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const message = welcomeInput.value.trim();
+                    if (message) {
+                        transitionToChat(message);
+                        welcomeInput.value = '';
+                    }
+                }
+            });
+            
+            // Event listeners for the chat screen
+            chatSend.addEventListener('click', function() {
+                sendChatMessage();
+            });
+            
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendChatMessage();
+                }
+            });
+            
+            // Function to handle sending a chat message
+            function sendChatMessage() {
+                const message = chatInput.value.trim();
+                if (message) {
+                    addMessage(message, 'user');
+                    chatInput.value = '';
+                    
+                    // Show typing indicator
+                    showTypingIndicator();
+                    
+                    // Simulate AI response after a delay
+                    setTimeout(() => {
+                        removeTypingIndicator();
+                        const response = generateResponse(message);
+                        addMessage(response, 'ai');
+                    }, 1500);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
